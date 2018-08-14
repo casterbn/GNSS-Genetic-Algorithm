@@ -22,17 +22,49 @@ from numpy import random
 A = np.loadtxt("A.txt", dtype = 'f')
 LB = np.loadtxt("LB.txt", dtype  = 'f')
 LO = np.loadtxt("LO.txt", dtype = 'f')
-MVC = np.loadtxt("MVC.txt", dtype = 'f')
+MVC = np.loadtxt("MVC.txt", dtype = 'float64')
+L = LB - LO
+P = np.linalg.inv(MVC)
 
 class parameter:
-    def __init__(self, A, LB, LO, MVC):
+    def __init__(self, A, L, P):
         self.A = A
-        self.LB = LB
-        self.LO = LO
-        self.MVC = MVC
+        self.L = L        
+        self.P = P
         
-    def X_parameters(self):       
-        print(self.A)
+    def X_parameters(self):
+        self.A = A
+        self.L = L
+        self.P = P
+        X_1 = np.dot(A.transpose(), P)
+        X_1 = np.dot(X_1, A)
+        X_1 = np.linalg.inv(X_1)
+        X_2 = np.dot(A.transpose(), P)
+        X_2 = np.dot(X_2, L)
+        X = np.dot(X_1, X_2)
+        return X
+    def residuals(self):
+        self.A = A
+        self.L = L
+        x = self.X_parameters()
+        V = np.dot(A, x) - L
+        return V
         
-matrices = parameter(A, LB, LO, MVC)
-matrices.X_parameters()
+        
+matrices = parameter(A, L, P)
+x = matrices.X_parameters().copy()
+v = matrices.residuals().copy()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
