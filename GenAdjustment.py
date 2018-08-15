@@ -25,6 +25,8 @@ LO = np.loadtxt("LO.txt", dtype = 'f')
 MVC = np.loadtxt("MVC.txt", dtype = 'float64')
 L = LB - LO
 P = np.linalg.inv(MVC)
+w = []
+c = 0.5
 
 class parameter:
     def __init__(self, A, L, P):
@@ -48,19 +50,41 @@ class parameter:
         self.L = L
         x = self.X_parameters()
         V = np.dot(A, x)
-        VR = np.subtract(V,L)
-        return VR #residuals vector
-    def square_residuals(self):
-        v = self.residuals()
+        V = np.subtract(V,L)
+        return V #residuals vector
+    def LMS(self):
+        v = self.residuals().copy()
+        vlms = self.residuals()
+        vlms = vlms**2        
+        vlms = np.mean(vlms)
+        std = c*np.sqrt(vlms)
+        for n in v:
+            if np.abs(n/std)<=2.5:
+                w.append(1)
+            elif np.abs(n/std)>2.5:
+                w.append(0) 
         v = v**2
-        v = v.sum()
-        return v
+        result = np.dot(w,v)
+                    
+        return vlms, w, result
+    def LTS(self):
+        vlts = self.residuals()
+        vlts = vlts**2
+        vlts = np.sort(vlts)
+        order = vlts.copy()
+        vlts = np.sum(vlts)
+        return vlts, order
+    
         
         
 matrices = parameter(A, L, P)
-x = matrices.X_parameters().copy()
-v = matrices.residuals().copy()
-s = matrices.square_residuals().copy()
+x = matrices.X_parameters()
+v = matrices.residuals()
+lms, p, result = matrices.LMS()
+lts, order = matrices.LTS()
+
+print(f'LMS: {lms}')
+print(f'LTS: {lts}')
 
 
 
