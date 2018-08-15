@@ -42,18 +42,25 @@ class parameter:
         X_2 = np.dot(A.transpose(), P)
         X_2 = np.dot(X_2, L)
         X = np.dot(X_1, X_2)
-        return X
+        return X #parameters vector
     def residuals(self):
         self.A = A
         self.L = L
         x = self.X_parameters()
-        V = np.dot(A, x) - L
-        return V
+        V = np.dot(A, x)
+        VR = np.subtract(V,L)
+        return VR #residuals vector
+    def square_residuals(self):
+        v = self.residuals()
+        v = v**2
+        v = v.sum()
+        return v
         
         
 matrices = parameter(A, L, P)
 x = matrices.X_parameters().copy()
 v = matrices.residuals().copy()
+s = matrices.square_residuals().copy()
 
 
 
