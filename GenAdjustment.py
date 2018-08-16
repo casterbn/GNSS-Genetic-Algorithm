@@ -2,7 +2,7 @@
 """
 Created on Sun Aug 12 21:16:38 2018
 
-@author: Eduardo Answer
+@author: Eduardo Answer <eduardonzinga111@hotmail.com>
 """
 
 """
@@ -12,7 +12,7 @@ Networks Adjustment
 
 import matplotlib as plt
 import math
-
+import pandas as pd
 try:
     import numpy as np
 except ImportError:
@@ -24,9 +24,11 @@ LB = np.loadtxt("LB.txt", dtype  = 'f')
 LO = np.loadtxt("LO.txt", dtype = 'f')
 MVC = np.loadtxt("MVC.txt", dtype = 'float64')
 L = LB - LO
+L[0] = L[0] + 2
+L[5] = L[5] + 3
 P = np.linalg.inv(MVC)
 w = []
-c = 0.5
+c = 1
 
 class parameter:
     def __init__(self, A, L, P):
@@ -38,11 +40,9 @@ class parameter:
         self.A = A
         self.L = L
         self.P = P
-        X_1 = np.dot(A.transpose(), P)
-        X_1 = np.dot(X_1, A)
+        X_1 = np.dot(np.dot(A.transpose(), P), A)
         X_1 = np.linalg.inv(X_1)
-        X_2 = np.dot(A.transpose(), P)
-        X_2 = np.dot(X_2, L)
+        X_2 = np.dot(np.dot(A.transpose(), P), L)
         X = np.dot(X_1, X_2)
         return X #parameters vector
     def residuals(self):
@@ -55,8 +55,7 @@ class parameter:
     def LMS(self):
         v = self.residuals().copy()
         vlms = self.residuals()
-        vlms = vlms**2        
-        vlms = np.mean(vlms)
+        vlms = np.mean(vlms**2)
         std = c*np.sqrt(vlms)
         for n in v:
             if np.abs(n/std)<=2.5:
